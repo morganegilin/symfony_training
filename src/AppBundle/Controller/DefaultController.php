@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,6 +40,7 @@ class DefaultController extends Controller
         $book->setTitle('Villa vortex');
         $book->setSummary('11 septembre 2001, un nouveau monde commence...');
         $book->setPublicationYear(2003);
+        $book->setIssueDate(new \Datetime());
         $book->setCreatedAt(new \Datetime());
         $book->setUpdatedAt(new \Datetime());
 
@@ -49,5 +51,82 @@ class DefaultController extends Controller
         return new Response('Identifiant du livre ajouté : '. $book->getId());
 
  }
+    public function createUserAction() {
+        $user = new User();
+        $user->setEmail('morganegilin@msn.com');
+        $user->setPassword('blabla');
+        $user->setLastname('Gilin');
+        $user->setFirstname('Morgane');
+        $user->setAddress('inconnu');
+        $user->setZipCode('33140');
+        $user->setBirthDate(new \Datetime(1991-27-8));
+        $user->setCreatedAt(new \Datetime());
+        $user->setUpdatedAt(new \Datetime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return new Response('Identifiant du lecteur ajouté : '. $user->getId());
+
+    }
+
+
+    public function showAction($id) {
+        $bookRepository = $this->getDoctrine()->getRepository('AppBundle:Book');
+        $book = $bookRepository->find($id);
+
+        if (!$book) {
+        throw $this->createNotFoundException('Aucun livre ne correspond à l\'id '.$id);
+         }
+
+         $user =  $book->getUser();
+
+         if(!$user){
+             return new Response('Livre consulté : ' . $book->getTitle().' disponible');
+         }else{
+             return new Response('Livre consulté : ' . $book->getTitle().' emprunté par '.$user->getFirstName().' le '.$book->getIssueDate()->format('d-m-Y'));
+         }
+
+
+ }
+
+    public function loanAction($userId,$bookId) {
+        $em = $this->getDoctrine()->getManager();
+        $book = $em->getRepository('AppBundle:Book')->find($bookId);
+        $user = $em->getRepository('AppBundle:User')->find($userId);
+
+        $book ->setUser($user);
+        $em->flush();
+        return new Response('Livre ' .$book->getTitle(). ' emprunté par '.$user->getFirstName().' le '.$book->getIssueDate()->format('d-m-Y'));
+    }
+
+    public function updateAction($id) {
+        $em = $this->getDoctrine()->getManager();
+        $book = $em->getRepository('AppBundle:Book')->find($id);
+
+        if (!$book) {
+            throw $this->createNotFoundException('Aucun livre ne correspond à l\'id '.$id);
+        }
+
+        $book->setSummary('Attention ! Ouvrir un roman de Dantec c\'est comme entrer en religion...');
+        $em->flush();
+
+        return new Response('Livre modifié : ' . $book->getTitle());
+    }
+
+    public function removeAction($id) {
+        $em = $this->getDoctrine()->getManager();
+        $book = $em->getRepository('AppBundle:Book')->find($id);
+
+        if (!$book) {
+            throw $this->createNotFoundException('Aucun livre ne correspond à l\'id '.$id);
+        }
+
+        $em->remove($book);
+        $em->flush();
+
+        return new Response('Livre supprimé ');
+    }
 
 }

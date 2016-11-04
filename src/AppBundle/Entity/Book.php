@@ -40,10 +40,26 @@ protected $issue_date;
  */
 protected $created_at;
 /**
- * @ORM\Column(type="text")
+ * @ORM\Column(type="datetime")
  */
 protected $updated_at;
+/**
+ * @ORM\ManyToOne(targetEntity="User", inversedBy="users")
+ * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+ */
+protected $user;
+/**
+ * @ORM\ManyToMany(targetEntity="Author", mappedBy="book")
+ */
+protected $authors;
 
+/**
+ * Constructor
+ */
+public function __construct()
+{
+    $this->authors = new ArrayCollection();
+}
     /**
      * Get id
      *
@@ -213,5 +229,29 @@ protected $updated_at;
     public function getUpdatedAt()
     {
         return $this->updated_at;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \AppBundle\Entity\User $user
+     * @return Book
+     */
+    public function setUser(\AppBundle\Entity\User $user = null)
+    {
+
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \AppBundle\Entity\User 
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

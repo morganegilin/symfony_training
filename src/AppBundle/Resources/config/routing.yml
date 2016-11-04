@@ -19,3 +19,15 @@ app_hello_showbookpage:
 app_hello_updatebookpage:
     pattern: /book/update/{id}
     defaults: { _controller: AppBundle:Default:update }
+
+app_hello_removebookpage:
+    pattern: /book/remove/{id}
+    defaults: { _controller: AppBundle:Default:remove }
+
+app_hello_createuserpage:
+    pattern: /book/createUser
+    defaults: { _controller: AppBundle:Default:createUser }
+
+app_hello_loanpage:
+    pattern: /book/loan/{userId}/{bookId}
+    defaults: { _controller: AppBundle:Default:loan }

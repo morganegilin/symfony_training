@@ -8,6 +8,17 @@ class HelloController extends Controller
 {
     public function indexAction($name,$sex)
     {
-        return $this->render('HelloBundle:Hello:index.html.twig',array('name'=>$name,'sex'=>$sex));
+        switch ($sex) {
+            case "h":
+            $type="monsieur";
+            break;
+            case "f":
+                $type="madame";
+                break;
+            default:
+                $type="inconnu";
+                break;
+        }
+        return $this->render('HelloBundle:Hello:index.html.twig',array('name'=>$name,'type'=>$type));
     }
 }

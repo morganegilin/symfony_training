@@ -49,7 +49,7 @@ protected $updated_at;
  */
 protected $user;
 /**
- * @ORM\ManyToMany(targetEntity="Author", mappedBy="book")
+ * @ORM\ManyToMany(targetEntity="Author", inversedBy="book")
  */
 protected $authors;
 
@@ -253,5 +253,38 @@ public function __construct()
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Add authors
+     *
+     * @param \AppBundle\Entity\Author $authors
+     * @return Book
+     */
+    public function addAuthor(\AppBundle\Entity\Author $authors)
+    {
+        $this->authors[] = $authors;
+
+        return $this;
+    }
+
+    /**
+     * Remove authors
+     *
+     * @param \AppBundle\Entity\Author $authors
+     */
+    public function removeAuthor(\AppBundle\Entity\Author $authors)
+    {
+        $this->authors->removeElement($authors);
+    }
+
+    /**
+     * Get authors
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAuthors()
+    {
+        return $this->authors;
     }
 }

@@ -1,3 +1,7 @@
+app_book:
+    resource: "@AppBundle/Controller/BookController.php"
+    type:     annotation
+
 hello:
     resource: "@HelloBundle/Resources/config/routing.yml"
     prefix:   /

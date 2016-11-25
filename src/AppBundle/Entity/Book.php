@@ -52,7 +52,10 @@ protected $user;
  * @ORM\ManyToMany(targetEntity="Author", inversedBy="book")
  */
 protected $authors;
-
+/**
+ * @ORM\OneToOne(targetEntity="Cover", mappedBy="book")
+ */
+protected $cover;
 /**
  * Constructor
  */
@@ -286,5 +289,28 @@ public function __construct()
     public function getAuthors()
     {
         return $this->authors;
+    }
+
+    /**
+     * Set cover
+     *
+     * @param \AppBundle\Entity\Cover $cover
+     * @return Book
+     */
+    public function setCover(\AppBundle\Entity\Cover $cover = null)
+    {
+        $this->cover = $cover;
+
+        return $this;
+    }
+
+    /**
+     * Get cover
+     *
+     * @return \AppBundle\Entity\Cover 
+     */
+    public function getCover()
+    {
+        return $this->cover;
     }
 }

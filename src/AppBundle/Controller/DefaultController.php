@@ -56,7 +56,7 @@ class DefaultController extends Controller
         $user->setEmail('morganegilin@msn.com');
         $user->setPassword('blabla');
         $user->setLastname('Gilin');
-        $user->setFirstname('Morgane');
+        $user->setFirstname(133);
         $user->setAddress('inconnu');
         $user->setZipCode('33140');
         $user->setBirthDate(new \Datetime(1991-27-8));
@@ -67,9 +67,22 @@ class DefaultController extends Controller
         $em->persist($user);
         $em->flush();
 
-        return new Response('Identifiant du lecteur ajouté : '. $user->getId());
+        $validator = $this->get('validator');
+        $errors = $validator->validate($user);
 
-    }
+        if (count($errors) > 0) {
+            return $this->render('AppBundle:User:validate.html.twig',
+                array(
+                    'errors' => $errors,
+                ));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return new Response('Identifiant du lecteur ajouté : '.$user->getId());
+ }
 
 
     public function showAction($id) {
@@ -77,29 +90,41 @@ class DefaultController extends Controller
         $book = $bookRepository->find($id);
 
         if (!$book) {
-        throw $this->createNotFoundException('Aucun livre ne correspond à l\'id '.$id);
-         }
+            throw $this->createNotFoundException('Aucun livre ne correspond à l\'id '. $id);
+        }
 
          $user =  $book->getUser();
 
-         if(!$user){
-             return new Response('Livre consulté : ' . $book->getTitle().' disponible');
-         }else{
-             return new Response('Livre consulté : ' . $book->getTitle().' emprunté par '.$user->getFirstName().' le '.$book->getIssueDate()->format('d-m-Y'));
-         }
+        if (!$user) {
+            $loanStatus = 'disponible';
+        } else {
+            $loanStatus = 'emprunté par ' . $user->getFirstname() . 'le ' . $book->getIssueDate()->format('d M. Y');
+        }
 
+        return $this->render('AppBundle:Show:show.html.twig', array(
+            'bookTitle' => $book->getTitle(),
+            'loanStatus' => $loanStatus));
 
  }
 
+
+
     public function loanAction($userId,$bookId) {
-        $em = $this->getDoctrine()->getManager();
-        $book = $em->getRepository('AppBundle:Book')->find($bookId);
-        $user = $em->getRepository('AppBundle:User')->find($userId);
+        $bookRepository = $this->getDoctrine()->getRepository('AppBundle:Book');
+        $book = $bookRepository->find($bookId);
+        $user = $this->getDoctrine()->getRepository('AppBundle:User')->find($userId);
 
         $book ->setUser($user);
-        $em->flush();
-        return new Response('Livre ' .$book->getTitle(). ' emprunté par '.$user->getFirstName().' le '.$book->getIssueDate()->format('d-m-Y'));
+        $this->getDoctrine()->flush();
+        return $this->render('AppBundle:Show:show.html.twig', array(
+            'bookTitle' => $book->getTitle(),
+            'userName' => $user->getFirstName(),
+            'bookDate' => $book->getIssueDate()->format('d-m-Y'),
+    ));
+
+
     }
+
 
     public function updateAction($id) {
         $em = $this->getDoctrine()->getManager();
@@ -128,5 +153,7 @@ class DefaultController extends Controller
 
         return new Response('Livre supprimé ');
     }
+
+
 
 }
